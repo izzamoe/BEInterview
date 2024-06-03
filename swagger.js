@@ -10,7 +10,7 @@ const options = {
             version: '1.0.0',
         },
     },
-    apis: ['./Routes/*.js'], // files containing annotations as above
+    apis: ['./Controllers/*.js'], // files containing annotations as above
 };
 
 const specs = swaggerJsdoc(options);
