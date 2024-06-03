@@ -44,14 +44,18 @@ export async function borrowBook(memberCode, bookCode) {
 
 export async function returnBook(memberCode, bookCode) {
     // Find borrow record
+    const member = await prisma.member.findUnique({ where: { code: memberCode } });
+    const book = await prisma.book.findUnique({ where: { code: bookCode } });
+
+    if (!member || !book) {
+        throw new Error('Member or book not found');
+    }
+
+    // Find borrow record
     const borrowRecord = await prisma.borrowRecord.findFirst({
         where: {
-            memberId: {
-                equals: memberCode,
-            },
-            bookId: {
-                equals: bookCode,
-            },
+            memberId: member.id,
+            bookId: book.id,
         },
     });
 
@@ -82,6 +86,11 @@ export async function returnBook(memberCode, bookCode) {
     await prisma.book.update({
         where: { code: bookCode },
         data: { stock: { increment: 1 } },
+    });
+
+    // delete record after
+    await prisma.borrowRecord.delete({
+        where: { id: borrowRecord.id },
     });
 
     return 'Book returned successfully';
